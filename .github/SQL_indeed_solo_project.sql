@@ -25,9 +25,9 @@ FROM data_analyst_jobs;
 -- Answer: 4
 
 SELECT
-COUNT(CASE WHEN location = 'TN' AND star_rating > 4 THEN 1 END)
-AS above_4star_rating_tn
-FROM data_analyst_jobs;
+COUNT(*) AS above_4star_rating_tn
+FROM data_analyst_jobs
+WHERE location = 'TN' AND star_rating >4;
 
 -- 5. How many postings in the dataset have a review count between 500 and 1000?
 -- Answer: 151
