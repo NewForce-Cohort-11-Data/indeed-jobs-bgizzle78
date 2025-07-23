@@ -25,6 +25,11 @@ FROM data_analyst_jobs;
 -- Answer: 4
 
 SELECT
+COUNT(CASE WHEN location = 'TN' AND star_rating > 4 THEN 1 END)
+AS above_4star_rating_tn
+FROM data_analyst_jobs;
+
+SELECT
 COUNT(*) AS above_4star_rating_tn
 FROM data_analyst_jobs
 WHERE location = 'TN' AND star_rating >4;
@@ -36,6 +41,11 @@ SELECT
 COUNT(CASE WHEN review_count >= 500 AND review_count <= 1000 THEN 1 END)
 AS review_count_500_1000
 FROM data_analyst_jobs;
+
+SELECT
+COUNT (*) AS review_count_500_1000
+FROM data_analyst_jobs
+WHERE review_count BETWEEN 500 AND 1000;
 
 -- 6. Show the average star rating for companies in each state. The output should show the state as state and the average rating for the state as avg_rating. Which state shows the highest average rating?
 -- Answer: NE 4.20
