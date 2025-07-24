@@ -21,6 +21,14 @@ COUNT(CASE WHEN location = 'KY' THEN 1 END) AS ky_postings,
 COUNT(CASE WHEN location IN ('TN', 'KY') THEN 1 END) AS tn_or_ky_postings
 FROM data_analyst_jobs;
 
+SELECT COUNT(*)
+FROM data_analyst_jobs
+WHERE location = 'TN';
+
+SELECT COUNT(*)
+FROM data_analyst_jobs
+WHERE location = 'TN' OR location = 'KY';
+
 -- 4. How many postings in Tennessee have a star rating above 4?
 -- Answer: 4
 
@@ -50,11 +58,10 @@ WHERE review_count BETWEEN 500 AND 1000;
 -- 6. Show the average star rating for companies in each state. The output should show the state as state and the average rating for the state as avg_rating. Which state shows the highest average rating?
 -- Answer: NE 4.20
 
-SELECT
-location AS state,
+SELECT location AS state,
 ROUND(AVG(star_rating), 2) AS avg_rating
 FROM data_analyst_jobs
-WHERE star_rating IS NOT NULL
+WHERE location IS NOT NULL AND star_rating IS NOT NULL
 GROUP BY location
 ORDER BY avg_rating DESC
 LIMIT 1;
@@ -85,6 +92,14 @@ WHERE star_rating IS NOT NULL AND company IS NOT NULL
 GROUP BY company
 HAVING SUM(review_count) > 5000;
 
+-- Answer: 40
+
+SELECT company,
+ROUND(AVG(star_rating), 2) AS avg_rating
+FROM data_analyst_jobs
+WHERE review_count > 5000 AND company IS NOT NULL
+GROUP BY company;
+
 -- 10. Add the code to order the query in #9 from highest to lowest average star rating. Which company with more than 5000 reviews across all locations in the dataset has the highest star rating? What is that rating?
 -- Answer: Google, 4.30
 
@@ -98,13 +113,17 @@ HAVING SUM(review_count) > 5000
 ORDER BY avg_rating DESC
 LIMIT 1;
 
+-- Answer: Microsoft, 4.20
+SELECT company,
+ROUND(AVG(star_rating), 2) AS avg_rating
+FROM data_analyst_jobs
+WHERE review_count > 5000 AND company IS NOT NULL
+GROUP BY company
+ORDER BY avg_rating DESC
+LIMIT 1;
+
 -- 11. Find all the job titles that contain the word ‘Analyst’. How many different job titles are there?
 -- Answer: 774
-
-SELECT
-DISTINCT title
-FROM data_analyst_jobs
-WHERE title ILIKE '%Analyst%';
 
 SELECT
 COUNT(DISTINCT title)
@@ -115,37 +134,15 @@ WHERE title ILIKE '%Analyst%';
 -- Answer: 4, Tableau
 
 SELECT
-DISTINCT title
-FROM data_analyst_jobs
-WHERE title NOT ILIKE '%Analyst%'
-AND title NOT ILIKE '%Analytics%';
-
-SELECT
 COUNT(DISTINCT title)
 FROM data_analyst_jobs
 WHERE title NOT ILIKE '%Analyst%'
 AND title NOT ILIKE '%Analytics%';
 
-
-
--- WITH 
---   total_positions AS (SELECT COUNT(*) AS total
---   FROM data_analyst_jobs), words_in_titles AS (
---     SELECT 
---       LOWER(word) AS word,                      -- make words lowercase so "Manager" and "manager" match
---       title                                     -- keep title to count distinct later
---     FROM data_analyst_jobs,
---       LATERAL unnest(string_to_array(title, ' ')) AS word ),     -- split title into words
---   word_counts AS (
---     SELECT word,
---       COUNT(DISTINCT title) AS count_titles   -- count how many titles have this word
---     FROM words_in_titles
---     GROUP BY word)
--- SELECT word
--- FROM word_counts, total_positions
--- WHERE count_titles = total     -- the word appears in every title
--- ORDER BY word;
-
+SELECT *
+FROM data_analyst_jobs
+WHERE title NOT ILIKE '%analyst%'
+AND title NOT ILIKE '%analytics%';
 
 -- BONUS: You want to understand which jobs requiring SQL are hard to fill. Find the number of jobs by industry (domain) that require SQL and have been posted longer than 3 weeks.
 -- Disregard any postings where the domain is NULL.
@@ -154,12 +151,9 @@ AND title NOT ILIKE '%Analytics%';
 -- Answer: Banks and Financial Services-63, Internet and Software-63, Consulting and Business Services-62, Health Care-54
 
 SELECT domain,
-COUNT (*) AS hard_to_fill
+COUNT (title) AS hard_to_fill
 FROM data_analyst_jobs
 WHERE domain IS NOT NULL AND skill ILIKE '%sql%' AND days_since_posting >= 21
 GROUP BY domain
 ORDER BY hard_to_fill DESC
 LIMIT 4;
-
-
-
